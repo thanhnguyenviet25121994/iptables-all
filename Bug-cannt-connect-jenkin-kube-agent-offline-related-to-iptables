@@ -1,0 +1,14 @@
+- Cách check: sử dụng cả iptables và tcpdump.
++ cơ chế: nếu inbound thì tcpdump thấy packet trc, iptables thấy sau (vì iptables là bên trong, tcpdump là interface bên ngoài, gói tin đi từ ngoài vào trong nên tcpdump thấy trc)"
++ nếu outbound thì ngược lại, tcpdump thấy sau
++ Nếu iptables đã cho packet đi qua 1 chiều thì mặc định chiều còn lại cũng thông => check trên máy target
++ dùng lệnh sau để check log iptables: iptables -A <chain> -j LOG (chain = INPUT, FORWARD,...)
++ nếu lệnh log xuất hiện tức là mọi rule phía trên đều ko match, các rule phía dưới log có thể sẽ match (thường rule dưới log là rule accept hoặc deny)
++ check tcpdump: Nếu outbound mà thấy tcpdump tức là iptable đã cho qua => check đầu server còn lại
+
+**2 trường hợp
+TH1:  Nếu có  client: (outbound)
+- check trên tcpdump, nếu thấy packet tức là iptables đã cho qua và chiều về mặc định cũng qua vì là stateful)
+TH2: Nếu có server: (inbound)
+- check trên tcpdump, nếu thấy packet thì tức là traffic đã đến được server. Tuy nhiên vẫn phải check iptables
+- Dùng lệnh iptables -A INPUT -j LOG để check. Nếu cần thì để rule accept lên đầu của chain INPUT
